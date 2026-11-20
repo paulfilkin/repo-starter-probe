@@ -1,0 +1,79 @@
+# Pull request hygiene, and detection of commits that reach main without a pull request.
+# On a private repository GitHub Free has no branch rules, so this workflow records what a ruleset would
+# have refused. Where rules exist it still runs and simply agrees with them.
+name: Guard
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+    branches: [main]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: read
+
+jobs:
+  pull-request:
+    name: Pull request hygiene
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check the branch name, the Closes line and the distance from main
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            const problems = [];
+            if (!/^(feature|fix|docs|chore)\/\d+(-|$)/.test(pr.head.ref)) {
+              problems.push(`The branch "${pr.head.ref}" is not named feature/, fix/, docs/ or chore/ followed by the issue number.`);
+            }
+            if (!/(^|\n)\s*Closes #\d+/i.test(pr.body || '')) {
+              problems.push('The description has no "Closes #<issue>" line.');
+            }
+            const compare = await github.rest.repos.compareCommitsWithBasehead({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              basehead: `${pr.base.sha}...${pr.head.sha}`,
+            });
+            if (compare.data.behind_by > 10) {
+              problems.push(`The branch is ${compare.data.behind_by} commits behind main; the limit is 10. Update the branch.`);
+            }
+            if (problems.length) {
+              core.setFailed(problems.join('\n'));
+            } else {
+              core.info('Branch name, Closes line and distance from main are all fine.');
+            }
+
+  direct-push:
+    name: Direct push detection
+    # The first push to a new branch has no pull request by nature, so it is not reported.
+    if: github.event_name == 'push' && !github.event.created
+    runs-on: ubuntu-latest
+    steps:
+      - name: Open an issue when a commit reached main without a pull request
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const sha = context.sha;
+            const short = sha.slice(0, 7);
+            const pulls = await github.rest.repos.listPullRequestsAssociatedWithCommit({ owner, repo, commit_sha: sha });
+            const merged = pulls.data.find(p => p.merged_at);
+            if (merged) {
+              core.info(`Commit ${short} came through pull request #${merged.number}.`);
+              return;
+            }
+            const title = `Direct push to main: ${short}`;
+            const open = await github.rest.issues.listForRepo({ owner, repo, state: 'open', labels: 'chore', per_page: 100 });
+            if (!open.data.some(i => i.title === title)) {
+              await github.rest.issues.create({
+                owner, repo, title, labels: ['chore'],
+                body: `Commit ${sha} reached main without a pull request. Pushed by @${context.actor}.\n\n` +
+                  'Every change is meant to arrive through a pull request (CONTRIBUTING.md section 2). ' +
+                  'If this was deliberate, say why here and close the issue; otherwise open a pull request for the follow-up.',
+              });
+            }
+            core.setFailed(`Commit ${short} reached main without a pull request.`);

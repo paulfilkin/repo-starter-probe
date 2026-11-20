@@ -1,0 +1,37 @@
+name: Feature
+description: Something new for repo-starter-probe to do, or a change to what it does.
+labels: ["feature"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        One feature per issue. Don't include passwords, keys or personal data, or screenshots that show them.
+  - type: textarea
+    id: what
+    attributes:
+      label: What should it do?
+      description: Describe the change from the user's point of view.
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: Who needs it and why?
+      description: Who it is for, and what it lets them do that they can't do now.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      description: What must be true for this issue to be closed.
+      placeholder: |
+        - A user can ...
+        - The checks cover ...
+    validations:
+      required: true
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notes
+      description: "Anything else: related issues, open questions, sketches."

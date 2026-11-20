@@ -1,0 +1,37 @@
+{
+  "conventionVersion": 1,
+  "setUp": "2026-11-20",
+  "language": "python",
+  "options": {
+    "releaseWorkflow": false,
+    "codeQl": true,
+    "discussions": false,
+    "reviewRequired": true
+  },
+  "board": {
+    "owner": "paulfilkin",
+    "number": 6
+  },
+  "selfTestCommand": "",
+  "requiredCheck": "Build and test",
+  "notAvailable": [],
+  "answers": {
+    "description": "A throwaway public repository for testing Repo Starter\u0027s public-repository steps.",
+    "projectFile": "",
+    "testProject": "",
+    "buildCommand": "python --version",
+    "testCommand": "",
+    "checklist": [
+      "one-issue",
+      "builds",
+      "tests",
+      "docs",
+      "no-secrets",
+      "no-packages",
+      "style"
+    ],
+    "behindLimit": 10,
+    "topics": []
+  },
+  "hasAnswers": true
+}

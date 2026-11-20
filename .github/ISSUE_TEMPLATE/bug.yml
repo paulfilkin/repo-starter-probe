@@ -1,0 +1,40 @@
+name: Bug
+description: Something in repo-starter-probe doesn't work as it should.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        One bug per issue. Don't include passwords, keys or personal data, or screenshots that show them.
+  - type: textarea
+    id: happened
+    attributes:
+      label: What happened?
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Open ...
+        2. Select ...
+        3. See ...
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: The release, or the commit on main, you were using.
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notes
+      description: Error messages, how often it happens, anything else that helps.
