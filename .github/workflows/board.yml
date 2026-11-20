@@ -22,7 +22,7 @@ jobs:
     steps:
       - name: Add to the board
         if: env.PROJECT_TOKEN != ''
-        uses: actions/add-to-project@v1.0.2
+        uses: actions/add-to-project@v2.0.1
         with:
           project-url: https://github.com/users/paulfilkin/projects/6
           github-token: ${{ env.PROJECT_TOKEN }}
